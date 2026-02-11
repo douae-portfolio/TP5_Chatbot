@@ -1,32 +1,27 @@
-const chatBox = document.getElementById('chat-box');
-const userInput = document.getElementById('user-input');
-const sendBtn = document.getElementById('send-btn');
+const chatBox = document.getElementById("chat-box");
+const userInput = document.getElementById("user-input");
+const sendBtn = document.getElementById("send-btn");
 
-// Fonction pour afficher les messages
+// Ajouter message dans le chat
 function addMessage(sender, message) {
-    const msgDiv = document.createElement('div');
-    msgDiv.classList.add(sender);
-    msgDiv.textContent = message;
-    chatBox.appendChild(msgDiv);
+    const messageDiv = document.createElement("div");
+    messageDiv.textContent = sender + ": " + message;
+    chatBox.appendChild(messageDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Événement du bouton envoyer
-sendBtn.addEventListener('click', () => {
-    const message = userInput.value.trim();
-    if (message === "") return;
+// Quand on clique sur envoyer
+sendBtn.addEventListener("click", () => {
+    const message = userInput.value;
 
-    addMessage('user', message);
+    if (message.trim() === "") return;
+
+    addMessage("Vous", message);
+
+    // Réponse simple (simulation API pour tester)
+    setTimeout(() => {
+        addMessage("Bot", "Tu as dit : " + message);
+    }, 500);
+
     userInput.value = "";
-
-    // Appel à l'API
-    fetch(`https://api.example.com/chatbot?message=${encodeURIComponent(message)}`)
-        .then(response => response.json())
-        .then(data => {
-            addMessage('bot', data.reply); // data.reply = réponse de l'API
-        })
-        .catch(error => {
-            addMessage('bot', "Désolé, il y a eu une erreur !");
-            console.error(error);
-        });
 });
