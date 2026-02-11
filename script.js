@@ -2,26 +2,32 @@ const chatBox = document.getElementById("chat-box");
 const userInput = document.getElementById("user-input");
 const sendBtn = document.getElementById("send-btn");
 
-// Ajouter message dans le chat
 function addMessage(sender, message) {
     const messageDiv = document.createElement("div");
-    messageDiv.textContent = sender + ": " + message;
+    messageDiv.classList.add(sender);
+    messageDiv.textContent = message;
     chatBox.appendChild(messageDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+// Message de bienvenue
+addMessage("bot", "Bonjour ! Je suis ton assistant marketing. Pose-moi une question.");
+
 // Quand on clique sur envoyer
 sendBtn.addEventListener("click", () => {
-    const message = userInput.value;
+    const message = userInput.value.trim();
+    if (message === "") return;
 
-    if (message.trim() === "") return;
-
-    addMessage("Vous", message);
-
-    // Réponse simple (simulation API pour tester)
-    setTimeout(() => {
-        addMessage("Bot", "Tu as dit : " + message);
-    }, 500);
-
+    addMessage("user", message);
     userInput.value = "";
+
+    // Appel API gratuite chatbot
+    fetch(`https://api.brainshop.ai/get?bid=178178&key=6WlA9WkqVnEJ0vXB&uid=1&msg=${encodeURIComponent(message)}`)
+        .then(response => response.json())
+        .then(data => {
+            addMessage("bot", data.cnt);
+        })
+        .catch(() => {
+            addMessage("bot", "Désolé, une erreur est survenue.");
+        });
 });
