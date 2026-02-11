@@ -10,10 +10,10 @@ function addMessage(sender, message) {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Message de bienvenue
+// message de bienvenue
 addMessage("bot", "Bonjour ! Je suis ton assistant marketing. Pose-moi une question.");
 
-// Quand on clique sur envoyer
+// quand on clique sur envoyer
 sendBtn.addEventListener("click", () => {
     const message = userInput.value.trim();
     if (message === "") return;
@@ -21,13 +21,13 @@ sendBtn.addEventListener("click", () => {
     addMessage("user", message);
     userInput.value = "";
 
-    // Appel API gratuite chatbot
-    fetch(`https://api.brainshop.ai/get?bid=178178&key=6WlA9WkqVnEJ0vXB&uid=1&msg=${encodeURIComponent(message)}`)
+    // appel à l'API
+    fetch("https://api.brainshop.ai/get?bid=178178&key=6WlA9WkqVnEJ0vXB&uid=1&msg=" + encodeURIComponent(message))
         .then(response => response.json())
         .then(data => {
             addMessage("bot", data.cnt);
         })
-        .catch(() => {
-            addMessage("bot", "Désolé, une erreur est survenue.");
+        .catch(error => {
+            addMessage("bot", "Erreur de connexion à l’API.");
         });
 });
