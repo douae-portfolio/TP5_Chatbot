@@ -2,11 +2,12 @@ const chatBox = document.getElementById('chat-box');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
+// Bibliothèque de réponses marketing précises
 const marketingLibrary = {
     "stratégie": "Une bonne stratégie marketing repose sur le mix-marketing (4P) : Produit, Prix, Place (Distribution) et Promotion.",
-    "vente": "L'augmentation des ventes passe par l'optimisation du tunnel de conversion (AIDA : Attention, Intérêt, Désir, Action).",
+    "ventes": "L'augmentation des ventes passe par l'optimisation du tunnel de conversion (AIDA : Attention, Intérêt, Désir, Action).",
     "seo": "Le SEO (Search Engine Optimization) permet de positionner votre site en tête des résultats Google gratuitement.",
-    "roi": "Le ROI (Retour sur Investissement) se calcule ainsi : (Gain - Coût) / Coût. C'est l'indicateur clé du marketing."
+    "digital": "Le marketing digital regroupe toutes les pratiques marketing utilisées sur les supports et canaux numériques."
 };
 
 function appendMessage(text, sender) {
@@ -20,24 +21,24 @@ function appendMessage(text, sender) {
 async function getBotResponse(input) {
     const query = input.toLowerCase();
 
-    // 1. Vérifier si c'est un mot-clé de notre bibliothèque locale
+    // 1. Recherche par mot-clé dans notre bibliothèque
     for (let key in marketingLibrary) {
         if (query.includes(key)) return marketingLibrary[key];
     }
 
-    // 2. Sinon, interroger l'API Dictionnaire pour définir le mot
+    // 2. Appel à l'API externe pour les autres termes
     try {
-        const word = query.split(' ').pop(); // Prend le dernier mot
-        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+        const words = query.split(' ');
+        const lastWord = words[words.length - 1];
+        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${lastWord}`);
         
         if (!response.ok) return "Je ne connais pas encore ce terme technique. Essayez 'SEO' ou 'Stratégie'.";
 
         const data = await response.json();
-        const definition = data[0].meanings[0].definitions[0].definition;
-        return `[Définition Expert] : ${definition} (Traduit de l'anglais)`;
+        return `[Définition] : ${data[0].meanings[0].definitions[0].definition}`;
         
     } catch (error) {
-        return "Erreur de connexion. Vérifiez votre accès internet.";
+        return "Désolé, je rencontre une erreur de connexion à l'API.";
     }
 }
 
@@ -48,13 +49,15 @@ sendBtn.addEventListener('click', async () => {
     appendMessage(text, 'user');
     userInput.value = "";
 
-    // Simulation de réflexion
-    const typingDiv = document.createElement('div');
-    typingDiv.classList.add('message', 'bot');
-    typingDiv.innerText = "...";
-    chatBox.appendChild(typingDiv);
+    // Affichage d'un indicateur de chargement
+    appendMessage("...", 'bot');
 
     const reply = await getBotResponse(text);
-    typingDiv.innerText = reply;
-    chatBox.scrollTop = chatBox.scrollHeight;
+    
+    // Remplacement du dernier message (les points) par la vraie réponse
+    chatBox.lastElementChild.innerText = reply;
+});
+
+userInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendBtn.click();
 });
