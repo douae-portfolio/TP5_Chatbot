@@ -2,52 +2,59 @@ const chatBox = document.getElementById('chat-box');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
-// Fonction pour ajouter un message à l'écran
+const marketingLibrary = {
+    "stratégie": "Une bonne stratégie marketing repose sur le mix-marketing (4P) : Produit, Prix, Place (Distribution) et Promotion.",
+    "vente": "L'augmentation des ventes passe par l'optimisation du tunnel de conversion (AIDA : Attention, Intérêt, Désir, Action).",
+    "seo": "Le SEO (Search Engine Optimization) permet de positionner votre site en tête des résultats Google gratuitement.",
+    "roi": "Le ROI (Retour sur Investissement) se calcule ainsi : (Gain - Coût) / Coût. C'est l'indicateur clé du marketing."
+};
+
 function appendMessage(text, sender) {
     const msgDiv = document.createElement('div');
     msgDiv.classList.add('message', sender);
     msgDiv.innerText = text;
     chatBox.appendChild(msgDiv);
-    chatBox.scrollTop = chatBox.scrollHeight; // Scroll automatique vers le bas
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Fonction pour appeler l'API
-async function getBotResponse() {
+async function getBotResponse(input) {
+    const query = input.toLowerCase();
+
+    // 1. Vérifier si c'est un mot-clé de notre bibliothèque locale
+    for (let key in marketingLibrary) {
+        if (query.includes(key)) return marketingLibrary[key];
+    }
+
+    // 2. Sinon, interroger l'API Dictionnaire pour définir le mot
     try {
-        // Nous utilisons une API de conseils gratuite (No-Auth)
-        const response = await fetch('https://api.adviceslip.com/advice');
+        const word = query.split(' ').pop(); // Prend le dernier mot
+        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
         
-        if (!response.ok) throw new Error("Erreur réseau");
+        if (!response.ok) return "Je ne connais pas encore ce terme technique. Essayez 'SEO' ou 'Stratégie'.";
 
         const data = await response.json();
-        return data.slip.advice; // L'API renvoie { slip: { advice: "..." } }
+        const definition = data[0].meanings[0].definitions[0].definition;
+        return `[Définition Expert] : ${definition} (Traduit de l'anglais)`;
         
     } catch (error) {
-        console.error("Erreur API:", error);
-        return "Désolé, je rencontre une erreur de connexion à l'API.";
+        return "Erreur de connexion. Vérifiez votre accès internet.";
     }
 }
 
-// Gestionnaire d'événement pour le bouton
 sendBtn.addEventListener('click', async () => {
-    const message = userInput.value.trim();
-    if (message === "") return;
+    const text = userInput.value.trim();
+    if (!text) return;
 
-    // 1. Afficher le message de l'utilisateur
-    appendMessage(message, 'user');
+    appendMessage(text, 'user');
     userInput.value = "";
 
-    // 2. Afficher un message de chargement
-    appendMessage("En train de réfléchir...", 'bot');
+    // Simulation de réflexion
+    const typingDiv = document.createElement('div');
+    typingDiv.classList.add('message', 'bot');
+    typingDiv.innerText = "...";
+    chatBox.appendChild(typingDiv);
 
-    // 3. Récupérer la réponse de l'API
-    const botReply = await getBotResponse();
-
-    // 4. Remplacer le message de chargement par la vraie réponse
-    chatBox.lastElementChild.innerText = botReply;
-});
-
-// Permettre d'envoyer avec la touche "Entrée"
-userInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') sendBtn.click();
+    const reply = await getBotResponse(text);
+    typingDiv.innerText = reply;
+    chatBox.scrollTop = chatBox.scrollHeight;
 });
