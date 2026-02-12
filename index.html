@@ -2,25 +2,27 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Assistant Marketing</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant Marketing - TP Chatbot</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="chat-container">
-    <div class="chat-header">
-        Assistant Marketing 🤖
+    <div class="chat-container">
+        <header>
+            <h2>Assistant Marketing 🤖</h2>
+        </header>
+        
+        <div id="chat-box" class="chat-box">
+            <div class="message bot">Bonjour ! Je suis ton assistant. Pose-moi une question pour recevoir un conseil.</div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Pose une question..." autocomplete="off">
+            <button id="send-btn">Envoyer</button>
+        </div>
     </div>
 
-    <div id="chat-box"></div>
-
-    <div class="input-area">
-        <input type="text" id="user-input" placeholder="Pose une question...">
-        <button id="send-btn">Envoyer</button>
-    </div>
-</div>
-
-<script src="script.js"></script>
-
+    <script src="script.js"></script>
 </body>
 </html>
