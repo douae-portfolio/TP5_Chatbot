@@ -1,6 +1,6 @@
 body {
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -12,75 +12,75 @@ body {
     width: 380px;
     background: white;
     border-radius: 15px;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
 }
 
-.chat-header {
-    background: linear-gradient(135deg, #ff7a18, #ff3c00);
+header {
+    background: #ff5e13;
     color: white;
     padding: 15px;
     text-align: center;
-    font-weight: bold;
-    font-size: 18px;
 }
 
-#chat-box {
-    height: 350px;
-    padding: 15px;
+.chat-box {
+    height: 400px;
+    padding: 20px;
     overflow-y: auto;
-    background: #f4f6fb;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #f9f9f9;
 }
 
-.user {
-    text-align: right;
-    margin: 8px 0;
-    background: #667eea;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 15px 15px 0 15px;
-    display: inline-block;
-    max-width: 75%;
-    float: right;
-    clear: both;
+.message {
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 80%;
+    font-size: 14px;
+    line-height: 1.4;
 }
 
 .bot {
-    text-align: left;
-    margin: 8px 0;
-    background: #e4e6eb;
-    color: black;
-    padding: 8px 12px;
-    border-radius: 15px 15px 15px 0;
-    display: inline-block;
-    max-width: 75%;
-    float: left;
-    clear: both;
+    background: #e1e1e1;
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+}
+
+.user {
+    background: #4a90e2;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
 }
 
 .input-area {
     display: flex;
-    border-top: 1px solid #ddd;
+    padding: 15px;
+    border-top: 1px solid #eee;
 }
 
-#user-input {
+input {
     flex: 1;
-    padding: 12px;
-    border: none;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
     outline: none;
 }
 
-#send-btn {
-    background: #ff3c00;
+button {
+    background: #ff5e13;
     color: white;
     border: none;
-    padding: 12px 18px;
+    padding: 10px 15px;
+    margin-left: 5px;
+    border-radius: 5px;
     cursor: pointer;
-    font-weight: bold;
+    transition: 0.3s;
 }
 
-#send-btn:hover {
-    background: #e63200;
+button:hover {
+    background: #e04d0a;
 }
