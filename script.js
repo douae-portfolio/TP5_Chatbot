@@ -2,46 +2,52 @@ const chatBox = document.getElementById('chat-box');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
-function addMessage(text, sender) {
+// Fonction pour ajouter un message à l'écran
+function appendMessage(text, sender) {
     const msgDiv = document.createElement('div');
     msgDiv.classList.add('message', sender);
     msgDiv.innerText = text;
     chatBox.appendChild(msgDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
+    chatBox.scrollTop = chatBox.scrollHeight; // Scroll automatique vers le bas
 }
 
-async function getBotResponse(message) {
-    // Exemple d'appel API (ici on utilise un dictionnaire gratuit pour tester)
+// Fonction pour appeler l'API
+async function getBotResponse() {
     try {
-        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${message.trim()}`);
-        const data = await response.json();
-
-        if (data.title === "No Definitions Found") {
-            return "Désolé, je suis un chatbot en apprentissage. Essayez de me donner un mot en anglais pour voir ma puissance !";
-        }
+        // Nous utilisons une API de conseils gratuite (No-Auth)
+        const response = await fetch('https://api.adviceslip.com/advice');
         
-        // On récupère la définition si elle existe
-        return "Définition : " + data[0].meanings[0].definitions[0].definition;
+        if (!response.ok) throw new Error("Erreur réseau");
+
+        const data = await response.json();
+        return data.slip.advice; // L'API renvoie { slip: { advice: "..." } }
+        
     } catch (error) {
-        return "Oups, j'ai un petit problème de connexion. Réessayez ?";
+        console.error("Erreur API:", error);
+        return "Désolé, je rencontre une erreur de connexion à l'API.";
     }
 }
 
-async function handleSend() {
-    const text = userInput.value;
-    if (!text) return;
+// Gestionnaire d'événement pour le bouton
+sendBtn.addEventListener('click', async () => {
+    const message = userInput.value.trim();
+    if (message === "") return;
 
-    addMessage(text, 'user');
-    userInput.value = '';
+    // 1. Afficher le message de l'utilisateur
+    appendMessage(message, 'user');
+    userInput.value = "";
 
-    // Petit délai pour simuler la réflexion
-    setTimeout(async () => {
-        const botReply = await getBotResponse(text);
-        addMessage(botReply, 'bot');
-    }, 1000);
-}
+    // 2. Afficher un message de chargement
+    appendMessage("En train de réfléchir...", 'bot');
 
-sendBtn.addEventListener('click', handleSend);
+    // 3. Récupérer la réponse de l'API
+    const botReply = await getBotResponse();
+
+    // 4. Remplacer le message de chargement par la vraie réponse
+    chatBox.lastElementChild.innerText = botReply;
+});
+
+// Permettre d'envoyer avec la touche "Entrée"
 userInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') handleSend();
+    if (e.key === 'Enter') sendBtn.click();
 });
