@@ -2,52 +2,55 @@ const chatBox = document.getElementById('chat-box');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
-// Fonction pour ajouter un message à l'écran
+// Base de connaissances locale pour simuler l'intelligence marketing
+const marketingResponses = {
+    "vente": "Pour augmenter les ventes, concentrez-vous sur la fidélisation client et l'optimisation de votre tunnel de conversion.",
+    "marketing": "Le marketing digital repose sur quatre piliers : le SEO, le contenu, les réseaux sociaux et l'analyse de données.",
+    "stratégie": "Une bonne stratégie commence par une analyse SWOT (Forces, Faiblesses, Opportunités, Menaces).",
+    "publicité": "La publicité efficace doit cibler une audience précise avec un message clair et un appel à l'action (CTA)."
+};
+
 function appendMessage(text, sender) {
     const msgDiv = document.createElement('div');
     msgDiv.classList.add('message', sender);
     msgDiv.innerText = text;
     chatBox.appendChild(msgDiv);
-    chatBox.scrollTop = chatBox.scrollHeight; // Scroll automatique vers le bas
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Fonction pour appeler l'API
-async function getBotResponse() {
-    try {
-        // Nous utilisons une API de conseils gratuite (No-Auth)
-        const response = await fetch('https://api.adviceslip.com/advice');
-        
-        if (!response.ok) throw new Error("Erreur réseau");
+async function getBotResponse(userText) {
+    const textLower = userText.toLowerCase();
+    
+    // 1. Vérification de mots-clés "Marketing" (Logique locale)
+    for (let key in marketingResponses) {
+        if (textLower.includes(key)) {
+            return marketingResponses[key];
+        }
+    }
 
+    // 2. Si aucun mot-clé, appel à l'API (Conseil général)
+    try {
+        const response = await fetch('https://api.adviceslip.com/advice');
         const data = await response.json();
-        return data.slip.advice; // L'API renvoie { slip: { advice: "..." } }
-        
+        return "Je n'ai pas de réponse spécifique, mais voici un conseil : " + data.slip.advice;
     } catch (error) {
-        console.error("Erreur API:", error);
-        return "Désolé, je rencontre une erreur de connexion à l'API.";
+        return "Désolé, je rencontre une petite erreur technique.";
     }
 }
 
-// Gestionnaire d'événement pour le bouton
 sendBtn.addEventListener('click', async () => {
     const message = userInput.value.trim();
     if (message === "") return;
 
-    // 1. Afficher le message de l'utilisateur
     appendMessage(message, 'user');
     userInput.value = "";
 
-    // 2. Afficher un message de chargement
-    appendMessage("En train de réfléchir...", 'bot');
+    appendMessage("Analyse en cours...", 'bot');
 
-    // 3. Récupérer la réponse de l'API
-    const botReply = await getBotResponse();
-
-    // 4. Remplacer le message de chargement par la vraie réponse
+    const botReply = await getBotResponse(message);
     chatBox.lastElementChild.innerText = botReply;
 });
 
-// Permettre d'envoyer avec la touche "Entrée"
 userInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendBtn.click();
 });
