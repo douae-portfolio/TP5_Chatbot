@@ -1,33 +1,53 @@
-const chatBox = document.getElementById("chat-box");
-const userInput = document.getElementById("user-input");
-const sendBtn = document.getElementById("send-btn");
+const chatBox = document.getElementById('chat-box');
+const userInput = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
 
-function addMessage(sender, message) {
-    const messageDiv = document.createElement("div");
-    messageDiv.classList.add(sender);
-    messageDiv.textContent = message;
-    chatBox.appendChild(messageDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
+// Fonction pour ajouter un message à l'écran
+function appendMessage(text, sender) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message', sender);
+    msgDiv.innerText = text;
+    chatBox.appendChild(msgDiv);
+    chatBox.scrollTop = chatBox.scrollHeight; // Scroll automatique vers le bas
 }
 
-// message de bienvenue
-addMessage("bot", "Bonjour ! Je suis ton assistant marketing. Pose-moi une question.");
+// Fonction pour appeler l'API
+async function getBotResponse() {
+    try {
+        // Nous utilisons une API de conseils gratuite (No-Auth)
+        const response = await fetch('https://api.adviceslip.com/advice');
+        
+        if (!response.ok) throw new Error("Erreur réseau");
 
-// quand on clique sur envoyer
-sendBtn.addEventListener("click", () => {
+        const data = await response.json();
+        return data.slip.advice; // L'API renvoie { slip: { advice: "..." } }
+        
+    } catch (error) {
+        console.error("Erreur API:", error);
+        return "Désolé, je rencontre une erreur de connexion à l'API.";
+    }
+}
+
+// Gestionnaire d'événement pour le bouton
+sendBtn.addEventListener('click', async () => {
     const message = userInput.value.trim();
     if (message === "") return;
 
-    addMessage("user", message);
+    // 1. Afficher le message de l'utilisateur
+    appendMessage(message, 'user');
     userInput.value = "";
 
-    // appel à l'API
-    fetch("https://api.brainshop.ai/get?bid=178178&key=6WlA9WkqVnEJ0vXB&uid=1&msg=" + encodeURIComponent(message))
-        .then(response => response.json())
-        .then(data => {
-            addMessage("bot", data.cnt);
-        })
-        .catch(error => {
-            addMessage("bot", "Erreur de connexion à l’API.");
-        });
+    // 2. Afficher un message de chargement
+    appendMessage("En train de réfléchir...", 'bot');
+
+    // 3. Récupérer la réponse de l'API
+    const botReply = await getBotResponse();
+
+    // 4. Remplacer le message de chargement par la vraie réponse
+    chatBox.lastElementChild.innerText = botReply;
+});
+
+// Permettre d'envoyer avec la touche "Entrée"
+userInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendBtn.click();
 });
