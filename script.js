@@ -2,8 +2,7 @@ const chatBox = document.getElementById('chat-box');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
-// 1. Fonction pour afficher les messages
-function appendMessage(text, sender) {
+function addMessage(text, sender) {
     const msgDiv = document.createElement('div');
     msgDiv.classList.add('message', sender);
     msgDiv.innerText = text;
@@ -11,26 +10,38 @@ function appendMessage(text, sender) {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// 2. Fonction pour communiquer avec l'API
-async function fetchBotResponse() {
+async function getBotResponse(message) {
+    // Exemple d'appel API (ici on utilise un dictionnaire gratuit pour tester)
     try {
-        // Utilisation d'une API de conseils (gratuite et sans clé)
-        const response = await fetch('https://api.adviceslip.com/advice');
+        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${message.trim()}`);
         const data = await response.json();
-        return data.slip.advice; // On extrait la réponse
+
+        if (data.title === "No Definitions Found") {
+            return "Désolé, je suis un chatbot en apprentissage. Essayez de me donner un mot en anglais pour voir ma puissance !";
+        }
+        
+        // On récupère la définition si elle existe
+        return "Définition : " + data[0].meanings[0].definitions[0].definition;
     } catch (error) {
-        return "Erreur : Impossible de contacter l'API.";
+        return "Oups, j'ai un petit problème de connexion. Réessayez ?";
     }
 }
 
-// 3. Gestion de l'envoi
-sendBtn.addEventListener('click', async () => {
-    const message = userInput.value.trim();
-    if (!message) return;
+async function handleSend() {
+    const text = userInput.value;
+    if (!text) return;
 
-    appendMessage(message, 'user'); // Affiche le message utilisateur
-    userInput.value = "";
+    addMessage(text, 'user');
+    userInput.value = '';
 
-    const response = await fetchBotResponse(); // Envoie/Reçoit de l'API
-    appendMessage(response, 'bot'); // Affiche la réponse API
+    // Petit délai pour simuler la réflexion
+    setTimeout(async () => {
+        const botReply = await getBotResponse(text);
+        addMessage(botReply, 'bot');
+    }, 1000);
+}
+
+sendBtn.addEventListener('click', handleSend);
+userInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleSend();
 });
